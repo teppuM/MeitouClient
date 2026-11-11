@@ -66,6 +66,7 @@ sealed class ApproachQueue(DialogueSystem dialogue)
             {
                 TaskStart.Stand(table, n);
                 _approaches.RemoveAt(k--);
+                world.DialogueLines.Line(world, "walkup", $"{EventLog.Who(world, a.Npc)} to {EventLog.Who(world, a.Target)}: arrived, fires event 1");
                 dialogue.Start(world, a.Npc, a.Target, DialogueEvents.PlayerTalkToMe, quiet: true);
                 if (!dialogue.TalksWith(a.Npc)) DialogueSystem.Release(world, a.Npc);
                 continue;
@@ -73,9 +74,12 @@ sealed class ApproachQueue(DialogueSystem dialogue)
 
             if (!done && world.GameHours >= a.GiveUpHours && GettingAway(table, n, t))
             {
+                world.DialogueLines.Line(world, "walkup", $"{EventLog.Who(world, a.Npc)} to {EventLog.Who(world, a.Target)}: gives up (event 60)");
                 GiveUp(world, table, a, n);
                 done = true;
             }
+            else if (done)
+                world.DialogueLines.Line(world, "walkup", $"{EventLog.Who(world, a.Npc)} to {EventLog.Who(world, a.Target)}: dropped (one is gone or down)");
 
             if (done)
             {

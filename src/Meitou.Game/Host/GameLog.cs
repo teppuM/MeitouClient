@@ -77,13 +77,16 @@ sealed class GameLog : TextWriter
     public override Encoding Encoding => _writer.Encoding;
 
     /// <summary>
-    /// The log of this run, or null when it cannot be opened (another game has it, or the folder is read-only).
+    /// The log of this run, or null when it cannot be opened (another game has it, or the folder is read-only): log.txt, or another log
+    /// (<paramref name="name"/>, a path relative to the executable's folder, its folder made when missing: log_actions.txt) kept the same way.
     /// </summary>
-    public static GameLog? Open()
+    public static GameLog? Open(string name = "log.txt")
     {
         try
         {
-            var file = new FileStream(Path.Combine(AppContext.BaseDirectory, "log.txt"), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+            string path = Path.Combine(AppContext.BaseDirectory, name);
+            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            var file = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
             file.Seek(0, SeekOrigin.End);
             var log = new GameLog(file);
             log.WriteLine($"==== {DateTime.Now:yyyy-MM-dd HH:mm:ss} meitou {string.Join(' ', Environment.GetCommandLineArgs().Skip(1))}");
